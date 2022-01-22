@@ -13,6 +13,12 @@ class FeishuDocumentFetcher {
     });
   }
 
+  getFolderMetaRequest(folderToken: string) {
+    const req = lark.api.newRequest('/drive/explorer/v2/folder/:folderToken/meta', 'GET', lark.api.AccessTokenType.Tenant, null);
+    req.setPathParams({ folderToken });
+    return req;
+  }
+
   getFolderChildrenRequest(folderToken: string) {
     const req = lark.api.newRequest('/drive/explorer/v2/folder/:folderToken/children', 'GET', lark.api.AccessTokenType.Tenant, null);
     req.setPathParams({ folderToken });
@@ -29,6 +35,11 @@ class FeishuDocumentFetcher {
     const req = lark.api.newRequest('/doc/v2/:docToken/raw_content', 'GET', lark.api.AccessTokenType.Tenant, null);
     req.setPathParams({ docToken });
     return req;
+  }
+
+  async getFolderMeta(folderToken: string) {
+    const response = await lark.api.sendRequest(this.appConfig, this.getFolderMetaRequest(folderToken));
+    return response.data;
   }
 
   async getFolderChildren(folderToken: string) {

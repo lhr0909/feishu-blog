@@ -1,22 +1,43 @@
 import type { NextPage, GetServerSideProps } from "next";
+import Head from "next/head";
+import Link from "next/link";
 
 import { feishuDocumentFetcher } from "../utils/feishu";
 
+import { Container } from "../components/Container";
+
 interface HomeProps {
+  folderMeta: any;
   folderChildren: any;
 }
 
-const Home: NextPage<HomeProps> = ({ folderChildren }) => {
+const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
   return (
-    <div>
-      <pre>{JSON.stringify(folderChildren, null, 2)}</pre>
-    </div>
+    <>
+      <Head>
+        <title>
+          {folderMeta.name}
+        </title>
+      </Head>
+      <Container>
+        {Object.keys(folderChildren.children).map((key: any) => {
+          const folder = folderChildren.children[key];
+          return (
+            <div key={key}>
+              <Link href={`/doc/${folder.token}`}><h3>{folder.name}</h3></Link>
+            </div>
+          );
+        })}
+      </Container>
+    </>
   );
 };
 
 export const getServerSideProps: GetServerSideProps<HomeProps> = async (context) => {
-  const folderChildren = await feishuDocumentFetcher.getFolderChildren("fldcne3Qc7mpOsjT0D7mbH5p8nb");
-  return { props: { folderChildren } };
+  const folderToken = "fldcne3Qc7mpOsjT0D7mbH5p8nb";
+  const folderMeta = await feishuDocumentFetcher.getFolderMeta(folderToken);
+  const folderChildren = await feishuDocumentFetcher.getFolderChildren(folderToken);
+  return { props: { folderMeta, folderChildren } };
 };
 
 export default Home;
