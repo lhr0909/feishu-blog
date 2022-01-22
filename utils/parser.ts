@@ -55,29 +55,30 @@ export interface Document {
   body: Body;
 }
 
-function parseBlocks(blocks: Block[]): string {
+function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
   return blocks.map((block) => {
     switch (block.type) {
       case BlockType.TextRun:
         return `${(block as TextRunBlock).textRun.text}`;
       case BlockType.Paragraph:
-        return `${parseBlocks((block as ParagraphBlock).paragraph.elements)}\n`;
+        return `${parseBlocks((block as ParagraphBlock).paragraph.elements, paragraphLineBreaks)}${'\n'.repeat(paragraphLineBreaks)}`;
       case BlockType.Code:
-        return `\`\`\`${(block as CodeBlock).code.language.toLowerCase()}\n${parseBlocks((block as CodeBlock).code.body.blocks)}\`\`\``;
+        return `\`\`\`${(block as CodeBlock).code.language.toLowerCase()}\n${parseBlocks((block as CodeBlock).code.body.blocks, 1)}\`\`\`\n\n`;
       default:
         throw new Error(`Unknown block type: ${block.type}`);
     }
   }).join('');
 }
 
-export function parseDocument(doc: Document): string {
-  let result = '';
-  const { title, body } = doc;
+export function parseDocument(doc: Document): { title: string; body: string } {
+  let titleString = '';
+  let bodyString = '';
+  let { title, body } = doc;
   if (title) {
-    result += `# ${parseBlocks(title.elements)}\n\n`;
+    titleString += parseBlocks(title.elements);
   }
   if (body) {
-    result += parseBlocks(body.blocks);
+    bodyString += parseBlocks(body.blocks);
   }
-  return result;
+  return { title: titleString, body: bodyString };
 }

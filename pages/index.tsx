@@ -15,17 +15,20 @@ const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
   return (
     <>
       <Head>
-        <title>
-          {folderMeta.name}
-        </title>
+        <title>{folderMeta.name}</title>
       </Head>
       <Container>
+        <h1 className="mb-8 text-4xl font-medium">{folderMeta.name}</h1>
         {Object.keys(folderChildren.children).map((key: any) => {
           const folder = folderChildren.children[key];
           return (
-            <div key={key}>
-              <Link href={`/doc/${folder.token}`}><h3>{folder.name}</h3></Link>
-            </div>
+            <h3 key={key}>
+              <Link href={`/doc/${folder.token}`} passHref>
+                <a className="text-blue-500 text-lg">
+                  {folder.name}
+                </a>
+              </Link>
+            </h3>
           );
         })}
       </Container>
@@ -33,10 +36,14 @@ const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async (context) => {
+export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+  context
+) => {
   const folderToken = "fldcne3Qc7mpOsjT0D7mbH5p8nb";
   const folderMeta = await feishuDocumentFetcher.getFolderMeta(folderToken);
-  const folderChildren = await feishuDocumentFetcher.getFolderChildren(folderToken);
+  const folderChildren = await feishuDocumentFetcher.getFolderChildren(
+    folderToken
+  );
   return { props: { folderMeta, folderChildren } };
 };
 
