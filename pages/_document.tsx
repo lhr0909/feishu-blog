@@ -16,7 +16,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head />
-        <body className="bg-gray-100 leading-normal tracking-normal">
+        <body className="bg-white text-slate-900 leading-normal tracking-normal">
           <Main />
           <NextScript />
         </body>

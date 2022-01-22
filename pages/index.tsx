@@ -42,7 +42,7 @@ const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
 export const getServerSideProps: GetServerSideProps<HomeProps> = async (
   context
 ) => {
-  const folderToken = "fldcne3Qc7mpOsjT0D7mbH5p8nb";
+  const folderToken = process.env.FOLDER_TOKEN!;
   const folderMeta = await feishuDocumentFetcher.getFolderMeta(folderToken);
   const folderChildren = await feishuDocumentFetcher.getFolderChildren(
     folderToken

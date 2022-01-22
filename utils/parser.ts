@@ -1,13 +1,29 @@
 export enum BlockType {
-  TextRun = 'textRun',
-  Paragraph = 'paragraph',
-  Code = 'code',
+  TextRun = "textRun",
+  Paragraph = "paragraph",
+  Code = "code",
 }
 
 export interface LocationMetadata {
   zoneId: string;
   startIndex: number;
   endIndex: number;
+}
+
+export interface TextRunStyle {
+  link?: {
+    url: string;
+  };
+  [key: string]: any;
+}
+
+export interface ParagraphStyle {
+  list?: {
+    type: "bullet" | "number";
+    indentLevel: number;
+    number?: number;
+  };
+  [key: string]: any;
 }
 
 export interface Body {
@@ -22,7 +38,7 @@ export interface TextRunBlock extends Block {
   type: BlockType.TextRun;
   textRun: {
     text: string;
-    style: Record<string, any>;
+    style: TextRunStyle;
     location: LocationMetadata;
   };
 }
@@ -31,6 +47,7 @@ export interface ParagraphBlock extends Block {
   type: BlockType.Paragraph;
   paragraph: {
     elements: Block[];
+    style?: ParagraphStyle;
     location: LocationMetadata;
     lineId: string;
   };
@@ -56,23 +73,62 @@ export interface Document {
 }
 
 function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
-  return blocks.map((block) => {
-    switch (block.type) {
-      case BlockType.TextRun:
-        return `${(block as TextRunBlock).textRun.text}`;
-      case BlockType.Paragraph:
-        return `${parseBlocks((block as ParagraphBlock).paragraph.elements, paragraphLineBreaks)}${'\n'.repeat(paragraphLineBreaks)}`;
-      case BlockType.Code:
-        return `\`\`\`${(block as CodeBlock).code.language.toLowerCase()}\n${parseBlocks((block as CodeBlock).code.body.blocks, 1)}\`\`\`\n\n`;
-      default:
-        throw new Error(`Unknown block type: ${block.type}`);
-    }
-  }).join('');
+  return blocks
+    .map((block) => {
+      switch (block.type) {
+        case BlockType.TextRun: {
+          const { textRun } = block as TextRunBlock;
+          if (textRun.style.link) {
+            return `[${textRun.text}](${decodeURIComponent(
+              textRun.style.link.url
+            )})`;
+          }
+
+          return `${textRun.text}`;
+        }
+        case BlockType.Paragraph: {
+          const { paragraph } = block as ParagraphBlock;
+          if (paragraph.style && paragraph.style.list) {
+            if (paragraph.style.list.type === "bullet") {
+              return `${"  ".repeat(
+                paragraph.style.list.indentLevel
+              )}- ${parseBlocks(
+                paragraph.elements,
+                paragraphLineBreaks
+              )}${"\n".repeat(paragraphLineBreaks)}`;
+            }
+            if (paragraph.style.list.type === "number") {
+              return `${"  ".repeat(paragraph.style.list.indentLevel)}${
+                paragraph.style.list.number
+              }. ${parseBlocks(
+                paragraph.elements,
+                paragraphLineBreaks
+              )}${"\n".repeat(paragraphLineBreaks)}`;
+            }
+          }
+          return `${parseBlocks(
+            paragraph.elements,
+            paragraphLineBreaks
+          )}${"\n".repeat(paragraphLineBreaks)}`;
+        }
+        case BlockType.Code:
+          return `\`\`\`${(
+            block as CodeBlock
+          ).code.language.toLowerCase()}\n${parseBlocks(
+            (block as CodeBlock).code.body.blocks,
+            1
+          )}\`\`\`\n\n`;
+        default:
+          throw new Error(`Unknown block type: ${block.type}`);
+      }
+    })
+    .join("");
 }
 
 export function parseDocument(doc: Document): { title: string; body: string } {
-  let titleString = '';
-  let bodyString = '';
+  let titleString = "";
+  let bodyString = "";
+  console.log(JSON.stringify(doc, null, 2));
   let { title, body } = doc;
   if (title) {
     titleString += parseBlocks(title.elements);

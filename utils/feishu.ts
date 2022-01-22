@@ -1,4 +1,4 @@
-import * as lark from '@larksuiteoapi/allcore';
+import * as lark from "@larksuiteoapi/allcore";
 
 class FeishuDocumentFetcher {
   private appSettings: lark.core.AppSettings;
@@ -14,57 +14,97 @@ class FeishuDocumentFetcher {
   }
 
   getFolderMetaRequest(folderToken: string) {
-    const req = lark.api.newRequest('/drive/explorer/v2/folder/:folderToken/meta', 'GET', lark.api.AccessTokenType.Tenant, null);
+    const req = lark.api.newRequest(
+      "/drive/explorer/v2/folder/:folderToken/meta",
+      "GET",
+      lark.api.AccessTokenType.Tenant,
+      null
+    );
     req.setPathParams({ folderToken });
     return req;
   }
 
   getFolderChildrenRequest(folderToken: string) {
-    const req = lark.api.newRequest('/drive/explorer/v2/folder/:folderToken/children', 'GET', lark.api.AccessTokenType.Tenant, null);
+    const req = lark.api.newRequest(
+      "/drive/explorer/v2/folder/:folderToken/children",
+      "GET",
+      lark.api.AccessTokenType.Tenant,
+      null
+    );
     req.setPathParams({ folderToken });
     return req;
   }
 
   getDocMetaRequest(docToken: string) {
-    const req = lark.api.newRequest('/doc/v2/meta/:docToken', 'GET', lark.api.AccessTokenType.Tenant, null);
+    const req = lark.api.newRequest(
+      "/doc/v2/meta/:docToken",
+      "GET",
+      lark.api.AccessTokenType.Tenant,
+      null
+    );
     req.setPathParams({ docToken });
     return req;
   }
 
   getDocContentRequest(docToken: string) {
-    const req = lark.api.newRequest('/doc/v2/:docToken/content', 'GET', lark.api.AccessTokenType.Tenant, null);
+    const req = lark.api.newRequest(
+      "/doc/v2/:docToken/content",
+      "GET",
+      lark.api.AccessTokenType.Tenant,
+      null
+    );
     req.setPathParams({ docToken });
     return req;
   }
 
   getDocRawContentRequest(docToken: string) {
-    const req = lark.api.newRequest('/doc/v2/:docToken/raw_content', 'GET', lark.api.AccessTokenType.Tenant, null);
+    const req = lark.api.newRequest(
+      "/doc/v2/:docToken/raw_content",
+      "GET",
+      lark.api.AccessTokenType.Tenant,
+      null
+    );
     req.setPathParams({ docToken });
     return req;
   }
 
   async getFolderMeta(folderToken: string) {
-    const response = await lark.api.sendRequest(this.appConfig, this.getFolderMetaRequest(folderToken));
+    const response = await lark.api.sendRequest(
+      this.appConfig,
+      this.getFolderMetaRequest(folderToken)
+    );
     return response.data;
   }
 
   async getFolderChildren(folderToken: string) {
-    const response = await lark.api.sendRequest(this.appConfig, this.getFolderChildrenRequest(folderToken));
+    const response = await lark.api.sendRequest(
+      this.appConfig,
+      this.getFolderChildrenRequest(folderToken)
+    );
     return response.data;
   }
 
   async getDocMeta(docToken: string) {
-    const response = await lark.api.sendRequest(this.appConfig, this.getDocMetaRequest(docToken));
+    const response = await lark.api.sendRequest(
+      this.appConfig,
+      this.getDocMetaRequest(docToken)
+    );
     return response.data;
   }
 
   async getDocContent(docToken: string) {
-    const response = await lark.api.sendRequest(this.appConfig, this.getDocContentRequest(docToken));
+    const response = await lark.api.sendRequest(
+      this.appConfig,
+      this.getDocContentRequest(docToken)
+    );
     return response.data;
   }
 
   async getDocRawContent(docToken: string) {
-    const response = await lark.api.sendRequest(this.appConfig, this.getDocRawContentRequest(docToken));
+    const response = await lark.api.sendRequest(
+      this.appConfig,
+      this.getDocRawContentRequest(docToken)
+    );
     return response.data;
   }
 }
