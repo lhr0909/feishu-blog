@@ -5,6 +5,8 @@ import Link from "next/link";
 import { feishuDocumentFetcher } from "../utils/feishu";
 
 import { Container } from "../components/Container";
+import { Header } from "../components/Header";
+import { Footer } from "../components/Footer";
 
 interface HomeProps {
   folderMeta: any;
@@ -18,7 +20,7 @@ const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
         <title>{folderMeta.name}</title>
       </Head>
       <Container>
-        <h1 className="mb-8 text-4xl font-medium">{folderMeta.name}</h1>
+        <Header title={folderMeta.name} />
         {Object.keys(folderChildren.children).map((key: any) => {
           const folder = folderChildren.children[key];
           return (
@@ -31,6 +33,7 @@ const Home: NextPage<HomeProps> = ({ folderMeta, folderChildren }) => {
             </h3>
           );
         })}
+        <Footer />
       </Container>
     </>
   );

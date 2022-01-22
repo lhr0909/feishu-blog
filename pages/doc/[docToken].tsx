@@ -4,7 +4,10 @@ import Head from "next/head";
 import { feishuDocumentFetcher } from "../../utils/feishu";
 import { parseDocument } from "../../utils/parser";
 import { renderMarkdown } from "../../utils/markdown";
+
 import { Container } from "../../components/Container";
+import { Header } from "../../components/Header";
+import { Footer } from "../../components/Footer";
 
 import 'highlight.js/styles/base16/zenburn.css';
 
@@ -20,11 +23,12 @@ const Doc: NextPage<DocProps> = ({ title, __html }) => {
         <title>{title}</title>
       </Head>
       <Container>
-        <h1 className="mb-8 text-4xl font-medium">{title}</h1>
+        <Header title={title} />
         <article
           className="prose prose-slate md:prose-lg"
           dangerouslySetInnerHTML={{ __html }}
         />
+        <Footer />
       </Container>
     </>
   );
