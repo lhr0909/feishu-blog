@@ -1,10 +1,9 @@
 import type { NextPage, GetServerSideProps } from "next";
 import Head from "next/head";
-import MarkdownIt from "markdown-it";
-import hljs from "highlight.js";
 
 import { feishuDocumentFetcher } from "../../utils/feishu";
 import { parseDocument } from "../../utils/parser";
+import { renderMarkdown } from "../../utils/markdown";
 import { Container } from "../../components/Container";
 
 import 'highlight.js/styles/base16/zenburn.css';
@@ -42,17 +41,7 @@ export const getServerSideProps: GetServerSideProps<DocProps> = async (
   return {
     props: {
       title,
-      __html: MarkdownIt({
-        highlight: function (str, lang) {
-          if (lang && hljs.getLanguage(lang)) {
-            try {
-              return hljs.highlight(str, { language: lang }).value;
-            } catch (__) {}
-          }
-
-          return ""; // use external default escaping
-        },
-      }).render(body),
+      __html: renderMarkdown(body),
     },
   };
 };
