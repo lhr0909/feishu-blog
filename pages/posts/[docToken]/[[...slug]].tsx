@@ -76,8 +76,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
           params: {
             docToken,
             slug:
-              postFrontmatter.slug as string ||
-              pinyin(postTitle, { toneType: "none" }).replace(/\s*/g, "-"),
+              [postFrontmatter.slug as string ||
+              pinyin(postTitle, { toneType: "none" }).replace(/\s*/g, "-")],
           },
         };
       })
