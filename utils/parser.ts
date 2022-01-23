@@ -16,6 +16,7 @@ export interface TextRunStyle {
   link?: {
     url: string;
   };
+  codeInline?: boolean;
   [key: string]: any;
 }
 
@@ -86,6 +87,10 @@ function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
             )})`;
           }
 
+          if (textRun.style.codeInline) {
+            return `\`${textRun.text}\``;
+          }
+
           return `${textRun.text}`;
         }
         case BlockType.Paragraph: {
@@ -139,6 +144,7 @@ export function parseDocument(doc: Document): matter.GrayMatterFile<string> & { 
   let titleString = "";
   let bodyString = "";
   let { title, body } = doc;
+  // console.log(JSON.stringify(body, null, 2));
   if (title) {
     titleString += parseBlocks(title.elements);
   }

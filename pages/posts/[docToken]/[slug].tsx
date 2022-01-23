@@ -4,11 +4,11 @@ import classNames from "classnames";
 import { pinyin } from "pinyin-pro";
 import { format } from 'date-fns';
 
-import { feishuDocumentFetcher } from "../../utils/feishu";
-import { parseDocument } from "../../utils/parser";
-import { renderMarkdown } from "../../utils/markdown";
+import { feishuDocumentFetcher } from "../../../utils/feishu";
+import { parseDocument } from "../../../utils/parser";
+import { renderMarkdown } from "../../../utils/markdown";
 
-import { Layout } from "../../components/Layout";
+import { Layout } from "../../../components/Layout";
 
 import "highlight.js/styles/agate.css";
 
@@ -74,8 +74,8 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
         return {
           params: {
+            docToken,
             slug:
-              `${docToken}-` +
               postFrontmatter.slug as string ||
               pinyin(postTitle, { toneType: "none" }).replace(/\s*/g, "-"),
           },
@@ -94,7 +94,7 @@ export const getStaticProps: GetStaticProps<DocProps> = async (context) => {
   );
 
   const { params } = context;
-  const docToken = (params?.slug as string).split("-")[0];
+  const { docToken } = params!;
 
   const {
     title: postTitle,
@@ -102,7 +102,7 @@ export const getStaticProps: GetStaticProps<DocProps> = async (context) => {
     edit_time,
     create_user_name,
     edit_user_name,
-  } = await feishuDocumentFetcher.getDocMeta(docToken);
+  } = await feishuDocumentFetcher.getDocMeta(docToken as string);
 
   const { content } = await feishuDocumentFetcher.getDocContent(docToken as string);
   const { content: body, data: postFrontmatter } = parseDocument(

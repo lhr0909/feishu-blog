@@ -16,6 +16,7 @@ interface HomeProps {
     docToken: string;
     postTitle: string;
     createdAt: string;
+    createTime: number;
   }>;
 }
 
@@ -29,7 +30,7 @@ const Home: NextPage<HomeProps> = ({ siteTitle, posts }) => {
         {posts.map((post) => {
           return (
             <h3 key={post.docToken}>
-              <Link href={`/posts/${post.slug}`} passHref>
+              <Link href={`/posts/${post.docToken}/${post.slug}`} passHref>
                 <a className="text-blue-500 hover:underline text-lg">
                   {post.postTitle}
                 </a>
@@ -45,9 +46,7 @@ const Home: NextPage<HomeProps> = ({ siteTitle, posts }) => {
   );
 };
 
-export const getStaticProps: GetStaticProps<HomeProps> = async (
-  context
-) => {
+export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
   const folderToken = process.env.FOLDER_TOKEN!;
   const { name: siteTitle } = await feishuDocumentFetcher.getFolderMeta(
     folderToken
@@ -57,37 +56,44 @@ export const getStaticProps: GetStaticProps<HomeProps> = async (
   );
 
   const posts = (await Promise.all(
-    Object.keys(children)
-      .map(async (key) => {
-        const { name, token: docToken, type } = children[key];
-        if (type !== "doc") {
-          return null;
-        }
+    Object.keys(children).map(async (key) => {
+      const { name, token: docToken, type } = children[key];
+      if (type !== "doc") {
+        return null;
+      }
 
-        const {
-          title: postTitle,
-          create_time,
-          edit_time,
-          create_user_name,
-          edit_user_name,
-        } = await feishuDocumentFetcher.getDocMeta(docToken);
+      const {
+        title: postTitle,
+        create_time,
+        edit_time,
+        create_user_name,
+        edit_user_name,
+      } = await feishuDocumentFetcher.getDocMeta(docToken);
 
-        const { content } = await feishuDocumentFetcher.getDocContent(docToken);
-        const { data: postFrontmatter } = parseDocument(JSON.parse(content));
+      const { content } = await feishuDocumentFetcher.getDocContent(docToken);
+      const { data: postFrontmatter } = parseDocument(JSON.parse(content));
 
-        return {
-          slug:
-            ((`${docToken}-` + postFrontmatter.slug) as string) ||
-            pinyin(postTitle, { toneType: "none" }).replace(/\s*/g, "-"),
-          docToken,
-          postTitle,
-          createdAt: format(new Date(create_time * 1000), "yyyy-MM-dd"),
-        };
-      })
-      .filter((item) => !!item)
+      return {
+        slug:
+          postFrontmatter.slug as string ||
+          pinyin(postTitle, { toneType: "none" }).replace(/\s*/g, "-"),
+        docToken,
+        postTitle,
+        createdAt: format(new Date(create_time * 1000), "yyyy-MM-dd"),
+        createTime: create_time,
+      };
+    })
   )) as unknown as HomeProps["posts"];
 
-  return { props: { siteTitle, posts }, revalidate: 600 };
+  return {
+    props: {
+      siteTitle,
+      posts: posts
+        .filter((item) => !!item)
+        .sort((a, b) => b.createTime - a.createTime),
+    },
+    revalidate: 600,
+  };
 };
 
 export default Home;
