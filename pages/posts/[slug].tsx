@@ -84,7 +84,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
       .filter((item) => !!item)
   ) as unknown as { params: { [key: string]: string | string[] } }[];
 
-  return { paths, fallback: true };
+  return { paths, fallback: 'blocking' };
 };
 
 export const getStaticProps: GetStaticProps<DocProps> = async (context) => {
@@ -119,6 +119,7 @@ export const getStaticProps: GetStaticProps<DocProps> = async (context) => {
       __html,
       postFrontmatter,
     },
+    revalidate: 600,
   };
 };
 
