@@ -1,3 +1,5 @@
+import matter from 'gray-matter';
+
 export enum BlockType {
   TextRun = "textRun",
   Paragraph = "paragraph",
@@ -74,7 +76,7 @@ export interface Document {
 
 function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
   return blocks
-    .map((block) => {
+    .map((block, idx) => {
       switch (block.type) {
         case BlockType.TextRun: {
           const { textRun } = block as TextRunBlock;
@@ -111,13 +113,21 @@ function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
             paragraphLineBreaks
           )}${"\n".repeat(paragraphLineBreaks)}`;
         }
-        case BlockType.Code:
+        case BlockType.Code: {
+          const { code } = block as CodeBlock;
+
+          if (idx === 0 && code.language.toLowerCase() === "yaml") {
+            // frontmatter
+            return `---\n${parseBlocks(code.body.blocks, 1)}\n---\n`;
+          }
+
           return `\`\`\`${(
             block as CodeBlock
           ).code.language.toLowerCase()}\n${parseBlocks(
             (block as CodeBlock).code.body.blocks,
             1
           )}\`\`\`\n\n`;
+        }
         default:
           throw new Error(`Unknown block type: ${block.type}`);
       }
@@ -125,10 +135,9 @@ function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
     .join("");
 }
 
-export function parseDocument(doc: Document): { title: string; body: string } {
+export function parseDocument(doc: Document): matter.GrayMatterFile<string> & { title: string } {
   let titleString = "";
   let bodyString = "";
-  console.log(JSON.stringify(doc, null, 2));
   let { title, body } = doc;
   if (title) {
     titleString += parseBlocks(title.elements);
@@ -136,5 +145,5 @@ export function parseDocument(doc: Document): { title: string; body: string } {
   if (body) {
     bodyString += parseBlocks(body.blocks);
   }
-  return { title: titleString, body: bodyString };
+  return { title: titleString, ...matter(bodyString) };
 }
