@@ -73,6 +73,10 @@ export const getStaticProps: GetStaticProps<HomeProps> = async (context) => {
       const { content } = await feishuDocumentFetcher.getDocContent(docToken);
       const { data: postFrontmatter } = parseDocument(JSON.parse(content));
 
+      if (postFrontmatter.draft) {
+        return null;
+      }
+
       return {
         slug:
           postFrontmatter.slug as string ||
