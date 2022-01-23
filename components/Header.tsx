@@ -7,11 +7,15 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({ title }) => {
   return (
-    <nav className="flex flex-col sm:flex-row sm:justify-between">
-      <h1 className="mb-2 sm:mb-8 text-2xl font-medium inline-block">{title}</h1>
-      <div className="mb-8 sm:mb-0 inline-block">
+    <nav className="my-6 flex flex-col sm:flex-row sm:justify-between">
+      <Link href="/" passHref>
+        <a>
+          <h2 className="hover:underline text-lg font-medium inline-block">{title}</h2>
+        </a>
+      </Link>
+      <div className="leading-8 inline-block">
         <Link href="/" passHref>
-          <a className="text-blue-500">
+          <a className="text-blue-500 hover:underline">
             博客列表
           </a>
         </Link>

@@ -1,5 +1,47 @@
 import * as lark from "@larksuiteoapi/allcore";
 
+interface FolderMeta {
+  id: string;
+  name: string;
+  token: string;
+  parentId: string;
+  createUid: string;
+  editUid: string;
+  ownUid: string;
+}
+
+interface FolderChildren {
+  parentToken: string;
+  children: {
+    [key: string]: {
+      token: string;
+      name: string;
+      type: string; // TODO: enum
+    };
+  }
+}
+
+interface DocMeta {
+  create_date: string;
+  create_time: number;
+  creator: string;
+  create_user_name: string;
+  delete_flag: 0 | 1 | 2; // TODO: enum
+  edit_time: number;
+  edit_user_name: string;
+  is_external: boolean;
+  is_pinned: boolean;
+  is_stared: boolean;
+  obj_type: 'doc'; // TODO: enum
+  owner: string;
+  owner_user_name: string;
+  server_time: number;
+  tenant_id: string;
+  title: string;
+  type: 2; // TODO: enum
+  url: string;
+}
+
 class FeishuDocumentFetcher {
   private appSettings: lark.core.AppSettings;
   private appConfig: lark.core.Config;
@@ -68,7 +110,7 @@ class FeishuDocumentFetcher {
     return req;
   }
 
-  async getFolderMeta(folderToken: string) {
+  async getFolderMeta(folderToken: string): Promise<FolderMeta> {
     const response = await lark.api.sendRequest(
       this.appConfig,
       this.getFolderMetaRequest(folderToken)
@@ -76,7 +118,7 @@ class FeishuDocumentFetcher {
     return response.data;
   }
 
-  async getFolderChildren(folderToken: string) {
+  async getFolderChildren(folderToken: string): Promise<FolderChildren> {
     const response = await lark.api.sendRequest(
       this.appConfig,
       this.getFolderChildrenRequest(folderToken)
@@ -84,7 +126,7 @@ class FeishuDocumentFetcher {
     return response.data;
   }
 
-  async getDocMeta(docToken: string) {
+  async getDocMeta(docToken: string): Promise<DocMeta> {
     const response = await lark.api.sendRequest(
       this.appConfig,
       this.getDocMetaRequest(docToken)

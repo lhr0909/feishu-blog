@@ -5,6 +5,17 @@ import Document, {
   NextScript,
   DocumentContext,
 } from "next/document";
+import classNames from "classnames";
+
+const bodyClassNames = classNames(
+  "bg-white",
+  "text-slate-900",
+  "leading-normal",
+  "tracking-normal",
+  "w-4/5",
+  "md:max-w-3xl",
+  "mx-auto",
+);
 
 class MyDocument extends Document {
   static async getInitialProps(ctx: DocumentContext) {
@@ -16,7 +27,7 @@ class MyDocument extends Document {
     return (
       <Html>
         <Head />
-        <body className="bg-white text-slate-900 leading-normal tracking-normal">
+        <body className={bodyClassNames}>
           <Main />
           <NextScript />
         </body>
