@@ -1,4 +1,4 @@
-import type { NextPage, GetServerSideProps } from "next";
+import type { NextPage, GetStaticProps } from "next";
 import Head from "next/head";
 import Link from "next/link";
 
@@ -45,7 +45,7 @@ const Home: NextPage<HomeProps> = ({ siteTitle, posts }) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps<HomeProps> = async (
+export const getStaticProps: GetStaticProps<HomeProps> = async (
   context
 ) => {
   const folderToken = process.env.FOLDER_TOKEN!;
@@ -87,7 +87,7 @@ export const getServerSideProps: GetServerSideProps<HomeProps> = async (
       .filter((item) => !!item)
   )) as unknown as HomeProps["posts"];
 
-  return { props: { siteTitle, posts } };
+  return { props: { siteTitle, posts }, revalidate: 600 };
 };
 
 export default Home;
