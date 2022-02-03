@@ -18,10 +18,10 @@ module.exports = {
               fontFamily: '"SF Mono", "Roboto Mono", Menlo, monospace',
             },
             'code::before': {
-              content: '',
+              content: "''",
             },
             'code::after': {
-              content: '',
+              content: "''",
             },
             pre: {
               code: {
@@ -31,6 +31,19 @@ module.exports = {
                 borderRadius: 0,
               },
             },
+            // ':where(blockquote p:first-of-type):not(:where([class~="not-prose"] *))::before': {
+            //   content: "''",
+            // },
+            // ':where(blockquote p:last-of-type):not(:where([class~="not-prose"] *))::after': {
+            //   content: "''",
+            // },
+            // blockquote: {
+            //   margin: theme("spacing.0"),
+            //   p: {
+            //     margin: theme("spacing.0"),
+            //     padding: theme("spacing.2"),
+            //   },
+            // },
           },
         },
       }),

@@ -1,4 +1,4 @@
-import matter from 'gray-matter';
+import matter from "gray-matter";
 
 export enum BlockType {
   TextRun = "textRun",
@@ -17,10 +17,14 @@ export interface TextRunStyle {
     url: string;
   };
   codeInline?: boolean;
+  bold?: boolean;
+  italic?: boolean;
   [key: string]: any;
 }
 
 export interface ParagraphStyle {
+  headingLevel: number;
+  quote?: boolean;
   list?: {
     type: "bullet" | "number";
     indentLevel: number;
@@ -75,47 +79,84 @@ export interface Document {
   body: Body;
 }
 
-function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
+function parseBlocks(
+  blocks: Block[],
+  paragraphLineBreaks = 2,
+  prefix = ""
+): string {
   return blocks
     .map((block, idx) => {
       switch (block.type) {
         case BlockType.TextRun: {
           const { textRun } = block as TextRunBlock;
+          let text = textRun.text;
+
           if (textRun.style.link) {
-            return `[${textRun.text}](${decodeURIComponent(
+            text = `[${textRun.text}](${decodeURIComponent(
               textRun.style.link.url
             )})`;
           }
 
           if (textRun.style.codeInline) {
-            return `\`${textRun.text}\``;
+            text = `\`${text}\``;
           }
 
-          return `${textRun.text}`;
+          if (textRun.style.bold) {
+            text = `**${text}**`;
+          }
+
+          if (textRun.style.italic) {
+            text = `*${text}*`;
+          }
+
+          return text;
         }
         case BlockType.Paragraph: {
           const { paragraph } = block as ParagraphBlock;
-          if (paragraph.style && paragraph.style.list) {
-            if (paragraph.style.list.type === "bullet") {
-              return `${"  ".repeat(
-                paragraph.style.list.indentLevel
-              )}- ${parseBlocks(
-                paragraph.elements,
-                paragraphLineBreaks
-              )}${"\n".repeat(paragraphLineBreaks)}`;
+
+          if (paragraph.style) {
+            if (paragraph.style.quote && !prefix.startsWith(">")) {
+              prefix += "> ";
             }
-            if (paragraph.style.list.type === "number") {
-              return `${"  ".repeat(paragraph.style.list.indentLevel)}${
-                paragraph.style.list.number
-              }. ${parseBlocks(
-                paragraph.elements,
-                paragraphLineBreaks
-              )}${"\n".repeat(paragraphLineBreaks)}`;
+
+            if (!paragraph.style.quote && prefix.startsWith(">")) {
+              prefix = prefix.replace(/>\s/g, "");
+            }
+
+            if (paragraph.style.headingLevel) {
+              return (
+                `${prefix}#`.repeat(paragraph.style.headingLevel) +
+                ` ${parseBlocks(
+                  paragraph.elements,
+                  paragraphLineBreaks,
+                  prefix
+                )}\n\n`
+              );
+            }
+
+            if (paragraph.style.list) {
+              if (paragraph.style.list.type === "bullet") {
+                return `${prefix}${"  ".repeat(
+                  paragraph.style.list.indentLevel - 1
+                )}- ${parseBlocks(paragraph.elements, 1, prefix)}\n\n`;
+              }
+
+              if (paragraph.style.list.type === "number") {
+                return `${prefix}${"  ".repeat(
+                  paragraph.style.list.indentLevel - 1
+                )}${paragraph.style.list.number}. ${parseBlocks(
+                  paragraph.elements,
+                  1,
+                  prefix
+                )}\n\n`;
+              }
             }
           }
-          return `${parseBlocks(
+
+          return `${prefix}${parseBlocks(
             paragraph.elements,
-            paragraphLineBreaks
+            paragraphLineBreaks,
+            prefix
           )}${"\n".repeat(paragraphLineBreaks)}`;
         }
         case BlockType.Code: {
@@ -140,11 +181,12 @@ function parseBlocks(blocks: Block[], paragraphLineBreaks = 2): string {
     .join("");
 }
 
-export function parseDocument(doc: Document): matter.GrayMatterFile<string> & { title: string } {
+export function parseDocument(
+  doc: Document
+): matter.GrayMatterFile<string> & { title: string } {
   let titleString = "";
   let bodyString = "";
   let { title, body } = doc;
-  // console.log(JSON.stringify(body, null, 2));
   if (title) {
     titleString += parseBlocks(title.elements);
   }
@@ -153,3 +195,16 @@ export function parseDocument(doc: Document): matter.GrayMatterFile<string> & { 
   }
   return { title: titleString, ...matter(bodyString) };
 }
+
+// import fs from "fs/promises";
+// import { resolve as pathResolve } from "path";
+
+// async function main() {
+//   const testFixture = await fs.readFile(
+//     pathResolve(process.cwd(), "test.json")
+//   );
+//   const fixture = JSON.parse(testFixture.toString());
+//   console.log(parseBlocks(fixture.blocks));
+// }
+
+// main();
